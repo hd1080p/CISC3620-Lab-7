@@ -129,6 +129,7 @@ int main(int argc, char * argv[]) {
     glClear(GL_COLOR_BUFFER_BIT);
     
     // draw triangle
+    model = glm::rotate(model, 0.5f, glm::vec3(0.0f, 0.0f, 1.0f));
     glUniformMatrix4fv(modelTransform, 1, GL_FALSE, glm::value_ptr(model));
     glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices)/sizeof(vertices[0]));
 
