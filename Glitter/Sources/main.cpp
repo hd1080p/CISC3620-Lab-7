@@ -119,7 +119,9 @@ int main(int argc, char * argv[]) {
   
   // model matrix
   GLint modelTransform = glGetUniformLocation(shaderProgram, "model");
-  glm::mat4 model = glm::scale(glm::vec3(0.5f,0.5f,0.0f));
+  glm::mat4 scale_model = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f,0.5f,0.0f));
+	glm::mat4 model = scale_model;
+  glUniformMatrix4fv(modelTransform, 1, GL_FALSE, glm::value_ptr(model));
   
   // Rendering Loop
   while (glfwWindowShouldClose(mWindow) == false) {
@@ -129,10 +131,7 @@ int main(int argc, char * argv[]) {
     glClear(GL_COLOR_BUFFER_BIT);
     
     // draw triangle
-    model = glm::rotate(model, 0.5f, glm::vec3(0.0f, 0.0f, 1.0f));
-    glUniformMatrix4fv(modelTransform, 1, GL_FALSE, glm::value_ptr(model));
     glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices)/sizeof(vertices[0]));
-
     
     // Flip Buffers and Draw
     glfwSwapBuffers(mWindow);
