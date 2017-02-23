@@ -14,6 +14,7 @@
 // Standard Headers
 #include <cstdio>
 #include <cstdlib>
+#include <iostream>
 
 #define RED 1.0f, 0.0f, 0.0f            // define macros for convenience
 #define BLUE 0.0f, 0.0f, 1.0f
@@ -55,9 +56,17 @@ GLfloat vertices [] = {
 };
 
 // callback for keyboard input
-void character_callback(GLFWwindow* window, unsigned int codepoint)
+// move camera when arrow keys are pressed, rotate it when arrow keys are pressed with control
+void key_callback(GLFWwindow* mWindow, int key, int scancode, int action, int mods)
 {
-  if (codepoint == 'x') glfwSetWindowShouldClose(window, true);
+  std::cout << mods << std::endl;
+  std::cout << GLFW_MOD_CONTROL << std::endl;
+  if (key == GLFW_KEY_LEFT) {
+    if (mods == GLFW_MOD_CONTROL) std::cout << "rotating camera left\n"; // rotate camera
+    else std::cout << "moving camera left\n";  // move camera
+    // etc.
+  }
+    
 }
 
 int main(int argc, char * argv[]) {
@@ -74,7 +83,10 @@ int main(int argc, char * argv[]) {
     fprintf(stderr, "Failed to Create OpenGL Context");
     return EXIT_FAILURE;
   }
-  glfwSetCharCallback(mWindow, character_callback);
+
+  // callbacks
+  glfwSetKeyCallback(mWindow, key_callback);
+  
   // Create Context and Load OpenGL Functions
   glfwMakeContextCurrent(mWindow);
   gladLoadGL();
