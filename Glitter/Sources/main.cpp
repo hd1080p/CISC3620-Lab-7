@@ -1,5 +1,4 @@
 // Local Headers
-#include "glitter.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -55,14 +54,17 @@ GLfloat vertices [] = {
   RIGHT, BOTTOM, GREEN,
 };
 
+bool controlIsPressed(GLFWwindow* window) {
+	return glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS; 
+}
+
 // callback for keyboard input
 // move camera when arrow keys are pressed, rotate it when arrow keys are pressed with control
 void key_callback(GLFWwindow* mWindow, int key, int scancode, int action, int mods)
 {
-  std::cout << mods << std::endl;
-  std::cout << GLFW_MOD_CONTROL << std::endl;
-  if (key == GLFW_KEY_LEFT) {
-    if (mods == GLFW_MOD_CONTROL) std::cout << "rotating camera left\n"; // rotate camera
+  std::cout << (mods == GLFW_MOD_SHIFT) << std::endl;
+  if (key == GLFW_KEY_LEFT && action != GLFW_RELEASE) {
+    if (mods == GLFW_MOD_SHIFT) std::cout << "rotating camera left\n"; // rotate camera
     else std::cout << "moving camera left\n";  // move camera
     // etc.
   }
@@ -77,7 +79,7 @@ int main(int argc, char * argv[]) {
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-  auto mWindow = glfwCreateWindow(mWidth, mHeight, "CISC3620", nullptr, nullptr);
+  auto mWindow = glfwCreateWindow(200, 200, "CISC3620", nullptr, nullptr);
   // Check for Valid Context
   if (mWindow == nullptr) {
     fprintf(stderr, "Failed to Create OpenGL Context");

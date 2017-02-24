@@ -22,8 +22,12 @@ Your pull request should contain the modified code and a clip of the rendered an
 
 ## Task
 
-Create appropriate view and projection matrices to position and clip your model. Link to keyboard callbacks so that pressing an arrow key moves the "camera" in the appropriate direction. 
+Create appropriate view and projection matrices to position and clip your model. Link to keyboard callbacks so that pressing an arrow key moves the "camera" in the appropriate direction. Pressing an arrow with the shift key should rotate the camera in the appropriate direction.
+
+Each time the camera is moved, also print an update to the terminal with the new position and orientation. E.g. "Camera location now at (3, 2, 1)." "Camera gaze now at (3, 2, 1)." "Camera up direction now (3, 2, 1)."
 
 ## Submit
 
-In addition to looking at your code, I will build your code on the test machine and test the arrow navigation.
+Submit a screen recording of you moving the viewer around the scene. Both the terminal with the logging output and the opengl window should be shown.
+
+The pull request should show the screen recording and the updated code (like lab 3 and part 1).
