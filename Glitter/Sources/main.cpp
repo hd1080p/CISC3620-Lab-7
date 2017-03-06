@@ -18,6 +18,9 @@
 #define RED 1.0f, 0.0f, 0.0f            // define macros for convenience
 #define BLUE 0.0f, 0.0f, 1.0f
 #define GREEN 0.0f, 1.0f, 0.0f
+#define ORANGE 1.0F, 0.6F, 0.0F
+#define PURPLE 1.0f, 0.0f, 1.0f
+#define YELLOW 1.0f, 1.0f, 0.0f
 
 // device coordinates
 #define LEFT -0.5f
@@ -25,17 +28,20 @@
 #define RIGHT 0.5f
 #define BOTTOM -0.5f
 #define MIDDLE 0.0f
+#define FRONT 0.5f
+#define BACK -0.5f
 
 const GLchar* vertexSource =
 "#version 150 core\n"             // glsl version
-"in vec2 position;"               // expects 2 values for position
+"in vec3 position;"               // expects 2 values for position
 "in vec3 color;"                  // and 3 values for color
 "out vec3 Color;"                 // will pass color along pipeline
 "uniform mat4 model;"             // uniform = the same for all vertices
+"uniform mat4 view;"
 "void main()"
 "{"
 "    Color = color;"              // just pass color along without modifying it
-"    gl_Position = model * vec4(position, 0.0, 1.0);"   // gl_Position is special variable for final position
+"    gl_Position = view * model * vec4(position, 1.0);"   // gl_Position is special variable for final position
 "}";                                                    // must be in homogeneous coordinates -- put in 0 for z and 1 for w
 // multiply by model matrix to transform
 const GLchar* fragmentSource =
@@ -49,20 +55,61 @@ const GLchar* fragmentSource =
 
 // vertex data
 GLfloat vertices [] = {
-  MIDDLE, TOP, RED,
-  LEFT, BOTTOM, BLUE,
-  RIGHT, BOTTOM, GREEN,
+  LEFT, TOP, FRONT, RED,        // front
+  LEFT, BOTTOM, FRONT, RED,
+  RIGHT, BOTTOM, FRONT, RED,
+  
+  LEFT, TOP, FRONT, RED,
+  RIGHT, BOTTOM, FRONT, RED,
+  RIGHT, TOP, FRONT, RED,
+  
+  LEFT, TOP, BACK, BLUE,        // left
+  LEFT, BOTTOM, BACK, BLUE,
+  LEFT, BOTTOM, FRONT, BLUE,
+  
+  LEFT, TOP, BACK, BLUE,
+  LEFT, BOTTOM, FRONT, BLUE,
+  LEFT, TOP, FRONT, BLUE,
+  
+  RIGHT, TOP, BACK, GREEN,      // back
+  RIGHT, BOTTOM, BACK, GREEN,
+  LEFT, BOTTOM, BACK, GREEN,
+  
+  RIGHT, TOP, BACK, GREEN,
+  LEFT, BOTTOM, BACK, GREEN,
+  LEFT, TOP, BACK, GREEN,
+  
+  RIGHT, TOP, FRONT, ORANGE,      // right
+  RIGHT, BOTTOM, FRONT, ORANGE,
+  RIGHT, BOTTOM, BACK, ORANGE,
+  
+  RIGHT, TOP, FRONT, ORANGE,
+  RIGHT, BOTTOM, BACK, ORANGE,
+  RIGHT, TOP, BACK, ORANGE,
+  
+  LEFT, TOP, BACK, PURPLE,    // top
+  LEFT, TOP, FRONT, PURPLE,
+  RIGHT, TOP, FRONT, PURPLE,
+  
+  LEFT, TOP, BACK, PURPLE,
+  RIGHT, TOP, FRONT, PURPLE,
+  RIGHT, TOP, BACK, PURPLE,
+  
+  LEFT, BOTTOM, FRONT, YELLOW,    // bottom
+  LEFT, BOTTOM, BACK, YELLOW,
+  RIGHT, BOTTOM, BACK, YELLOW,
+  
+  LEFT, BOTTOM, FRONT, YELLOW,
+  RIGHT, BOTTOM, BACK, YELLOW,
+  RIGHT, BOTTOM, FRONT, YELLOW,
 };
-
-bool controlIsPressed(GLFWwindow* window) {
-	return glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS; 
-}
 
 // callback for keyboard input
 // move camera when arrow keys are pressed, rotate it when arrow keys are pressed with control
 void key_callback(GLFWwindow* mWindow, int key, int scancode, int action, int mods)
 {
   std::cout << (mods == GLFW_MOD_SHIFT) << std::endl;
+  if (key == GLFW_KEY_X && action == GLFW_PRESS) glfwSetWindowShouldClose(mWindow, true);
   if (key == GLFW_KEY_LEFT && action != GLFW_RELEASE) {
     if (mods == GLFW_MOD_SHIFT) std::cout << "rotating camera left\n"; // rotate camera
     else std::cout << "moving camera left\n";  // move camera
@@ -85,7 +132,7 @@ int main(int argc, char * argv[]) {
     fprintf(stderr, "Failed to Create OpenGL Context");
     return EXIT_FAILURE;
   }
-
+  
   // callbacks
   glfwSetKeyCallback(mWindow, key_callback);
   
@@ -93,6 +140,8 @@ int main(int argc, char * argv[]) {
   glfwMakeContextCurrent(mWindow);
   gladLoadGL();
   fprintf(stderr, "OpenGL %s\n", glGetString(GL_VERSION));
+  
+  glEnable(GL_DEPTH_TEST);
   
   // Create Vertex Array Object: this will store all the information about the vertex data that we are about to specify
   GLuint vao;
@@ -125,25 +174,32 @@ int main(int argc, char * argv[]) {
   // position
   GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
   glEnableVertexAttribArray(posAttrib);
-  glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), 0);  // attribute location, # values, value type, normalize?, stride, offset
+  glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);  // attribute location, # values, value type, normalize?, stride, offset
   // color
   GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
   glEnableVertexAttribArray(colAttrib);
-  glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
+  glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
   
   // model matrix
   GLint modelTransform = glGetUniformLocation(shaderProgram, "model");
-  glm::mat4 scale_model = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f,0.5f,0.0f));
-	glm::mat4 model = scale_model;
-  glUniformMatrix4fv(modelTransform, 1, GL_FALSE, glm::value_ptr(model));
+  glm::mat4 rotate_model = glm::rotate(glm::mat4(1.0f), 15.0f, glm::vec3(1.0f, 0.0f, 0.0f));
   
+  // view matrix
+  glm::mat4 ortho_model = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
+  GLint viewTransform = glGetUniformLocation(shaderProgram, "view");
+  glUniformMatrix4fv(viewTransform, 1, GL_FALSE, glm::value_ptr(ortho_model));
+	
   // Rendering Loop
+  float r = 0.1f;
   while (glfwWindowShouldClose(mWindow) == false) {
     
     // Background Fill Color
-    glClearColor(0.85f, 0.65f, 0.65f, 0.8f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(0.9f, 0.9f, 0.9f, 0.8f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
+    glm::mat4 model = glm::rotate(rotate_model, r+=0.01, glm::vec3(0.0f, 1.0f, 0.0f));
+    glUniformMatrix4fv(modelTransform, 1, GL_FALSE, glm::value_ptr(model));
+
     // draw triangle
     glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices)/sizeof(vertices[0]));
     
