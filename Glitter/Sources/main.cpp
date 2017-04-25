@@ -105,17 +105,9 @@ GLfloat vertices [] = {
 };
 
 // callback for keyboard input
-// move camera when arrow keys are pressed, rotate it when arrow keys are pressed with control
 void key_callback(GLFWwindow* mWindow, int key, int scancode, int action, int mods)
 {
-  std::cout << (mods == GLFW_MOD_SHIFT) << std::endl;
   if (key == GLFW_KEY_X && action == GLFW_PRESS) glfwSetWindowShouldClose(mWindow, true);
-  if (key == GLFW_KEY_LEFT && action != GLFW_RELEASE) {
-    if (mods == GLFW_MOD_SHIFT) std::cout << "rotating camera left\n"; // rotate camera
-    else std::cout << "moving camera left\n";  // move camera
-    // etc.
-  }
-    
 }
 
 int main(int argc, char * argv[]) {
