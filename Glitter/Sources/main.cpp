@@ -34,7 +34,7 @@
 #define TOP_LEFT 0.0f, 1.0f
 #define BOTTOM_LEFT 0.0f, 0.0f
 #define TOP_RIGHT 1.0f, 1.0f
-#define BOTTOM_RIGHT 0.0f, 1.0f
+#define BOTTOM_RIGHT 1.0f, 0.0f
 
 const GLchar* vertexSource =
 "#version 150 core\n"             // glsl version
@@ -72,13 +72,13 @@ GLfloat vertices [] = {
   LEFT, TOP, FRONT, RED, TOP_LEFT,
   RIGHT, BOTTOM, FRONT, RED, BOTTOM_RIGHT,
   RIGHT, TOP, FRONT, RED, TOP_RIGHT,
-  
-  LEFT, TOP, BACK, BLUE, TOP_LEFT,       // left
+ 
+	 LEFT, TOP, BACK, BLUE, TOP_LEFT,       // left
   LEFT, BOTTOM, BACK, BLUE, BOTTOM_LEFT,
   LEFT, BOTTOM, FRONT, BLUE, BOTTOM_RIGHT,
   
   LEFT, TOP, BACK, BLUE, TOP_LEFT,
-  LEFT, BOTTOM, FRONT, BLUE, BOTTOM_LEFT,
+  LEFT, BOTTOM, FRONT, BLUE, BOTTOM_RIGHT,
   LEFT, TOP, FRONT, BLUE, TOP_RIGHT,
   
   RIGHT, TOP, BACK, GREEN, TOP_LEFT,     // back
@@ -86,15 +86,15 @@ GLfloat vertices [] = {
   LEFT, BOTTOM, BACK, GREEN, BOTTOM_RIGHT,
   
   RIGHT, TOP, BACK, GREEN, TOP_LEFT,
-  LEFT, BOTTOM, BACK, GREEN, BOTTOM_LEFT,
+  LEFT, BOTTOM, BACK, GREEN, BOTTOM_RIGHT,
   LEFT, TOP, BACK, GREEN, TOP_RIGHT,
   
   RIGHT, TOP, FRONT, ORANGE, TOP_LEFT,     // right
   RIGHT, BOTTOM, FRONT, ORANGE, BOTTOM_LEFT,
   RIGHT, BOTTOM, BACK, ORANGE, BOTTOM_RIGHT,
-  
+ 
   RIGHT, TOP, FRONT, ORANGE, TOP_LEFT,
-  RIGHT, BOTTOM, BACK, ORANGE, BOTTOM_LEFT,
+  RIGHT, BOTTOM, BACK, ORANGE, BOTTOM_RIGHT,
   RIGHT, TOP, BACK, ORANGE, TOP_RIGHT,
   
   LEFT, TOP, BACK, PURPLE, TOP_LEFT,   // top
@@ -102,7 +102,7 @@ GLfloat vertices [] = {
   RIGHT, TOP, FRONT, PURPLE, BOTTOM_RIGHT,
   
   LEFT, TOP, BACK, PURPLE, TOP_LEFT,
-  RIGHT, TOP, FRONT, PURPLE, BOTTOM_LEFT,
+  RIGHT, TOP, FRONT, PURPLE, BOTTOM_RIGHT,
   RIGHT, TOP, BACK, PURPLE, TOP_RIGHT,
   
   LEFT, BOTTOM, FRONT, YELLOW, TOP_LEFT,   // bottom
@@ -110,7 +110,7 @@ GLfloat vertices [] = {
   RIGHT, BOTTOM, BACK, YELLOW, BOTTOM_RIGHT,
   
   LEFT, BOTTOM, FRONT, YELLOW, TOP_LEFT,
-  RIGHT, BOTTOM, BACK, YELLOW, BOTTOM_LEFT,
+  RIGHT, BOTTOM, BACK, YELLOW, BOTTOM_RIGHT,
   RIGHT, BOTTOM, FRONT, YELLOW, TOP_RIGHT,
 };
 
@@ -197,7 +197,7 @@ int main(int argc, char * argv[]) {
 
 	// load texture
 	int w, h, comp;
-	unsigned char* image = stbi_load("/Users/rivka/Desktop/granite.jpg", &w, &h, &comp, STBI_rgb);
+	unsigned char* image = stbi_load("/tmp/Textures/spaceship.jpg", &w, &h, &comp, STBI_rgb);
 	if (image == nullptr) std::cout << stbi_failure_reason() << std::endl;
 
 	// generate texture
