@@ -128,7 +128,7 @@ int main(int argc, char * argv[]) {
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-  auto mWindow = glfwCreateWindow(200, 200, "CISC3620", nullptr, nullptr);
+  auto mWindow = glfwCreateWindow(600, 600, "CISC3620", nullptr, nullptr);
   // Check for Valid Context
   if (mWindow == nullptr) {
     fprintf(stderr, "Failed to Create OpenGL Context");
@@ -197,7 +197,7 @@ int main(int argc, char * argv[]) {
 
 	// load texture
 	int w, h, comp;
-	unsigned char* image = stbi_load("/tmp/Textures/spaceship.jpg", &w, &h, &comp, STBI_rgb);
+	unsigned char* image = stbi_load("/tmp/Textures/bunny.jpg", &w, &h, &comp, STBI_rgb);
 	if (image == nullptr) std::cout << stbi_failure_reason() << std::endl;
 
 	// generate texture
@@ -208,8 +208,8 @@ int main(int argc, char * argv[]) {
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	// texture parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
