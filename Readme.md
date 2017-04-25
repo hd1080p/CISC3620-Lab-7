@@ -8,7 +8,7 @@ The "texture" branch renders the same cube with each side textured with a pictur
 
 ## Modification
 
-Modify the texture coordinates and parameters to produce the cube "hw_ex.mov". You may have to experiment to get the correct configuration.
+Modify the texture coordinates and parameters to produce the cube "hw.mov". You may have to experiment to get the correct configuration.
 
 ## Due date
 
