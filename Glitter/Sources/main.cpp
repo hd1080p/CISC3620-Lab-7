@@ -60,7 +60,7 @@ const GLchar* fragmentSource =
 "uniform sampler2D theTexture;"
 "void main()"
 "{"
-"    outColor = texture(theTexture, TexCoord);"
+"    outColor = texture(theTexture, TexCoord) * vec4(Color, 1.0f);"
 "}";
 
 // vertex data
@@ -197,7 +197,7 @@ int main(int argc, char * argv[]) {
 
 	// load texture
 	int w, h, comp;
-	unsigned char* image = stbi_load("/tmp/Textures/bunny.jpg", &w, &h, &comp, STBI_rgb);
+	unsigned char* image = stbi_load("/Users/Harris/Documents/Code/CISC\ 3620/CISC3620-Lab-7/Textures/bunny.jpg", &w, &h, &comp, STBI_rgb);
 	if (image == nullptr) std::cout << stbi_failure_reason() << std::endl;
 
 	// generate texture
