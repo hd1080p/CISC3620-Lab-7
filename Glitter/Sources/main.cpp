@@ -1,12 +1,11 @@
-// Local Headers
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "glm/ext.hpp"          // to print vectors and matrices
-
-// System Headers
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -31,77 +30,88 @@
 #define FRONT 0.5f
 #define BACK -0.5f
 
+// texture coordinates
+#define TOP_LEFT 0.0f, 2.0f
+#define BOTTOM_LEFT 0.0f, 0.0f
+#define TOP_RIGHT 2.0f, 2.0f
+#define BOTTOM_RIGHT 2.0f, 0.0f
+
 const GLchar* vertexSource =
 "#version 150 core\n"             // glsl version
 "in vec3 position;"               // expects 2 values for position
 "in vec3 color;"                  // and 3 values for color
+"in vec2 texCoord;"								// and 2 texture coordinates
 "out vec3 Color;"                 // will pass color along pipeline
+"out vec2 TexCoord;"							// and texture coordinates
 "uniform mat4 model;"             // uniform = the same for all vertices
 "uniform mat4 view;"
 "void main()"
 "{"
 "    Color = color;"              // just pass color along without modifying it
+"    TexCoord = texCoord;"
 "    gl_Position = view * model * vec4(position, 1.0);"   // gl_Position is special variable for final position
 "}";                                                    // must be in homogeneous coordinates -- put in 0 for z and 1 for w
 // multiply by model matrix to transform
 const GLchar* fragmentSource =
 "#version 150 core\n"
 "in vec3 Color;"
+"in vec2 TexCoord;"
 "out vec4 outColor;"
+"uniform sampler2D theTexture;"
 "void main()"
 "{"
-"    outColor = vec4(Color, 1.0);"
+"    outColor = texture(theTexture, TexCoord) * vec4(Color, 1.0f);"
 "}";
 
 // vertex data
 GLfloat vertices [] = {
-  LEFT, TOP, FRONT, RED,        // front
-  LEFT, BOTTOM, FRONT, RED,
-  RIGHT, BOTTOM, FRONT, RED,
+  LEFT, TOP, FRONT, RED, TOP_LEFT,       // front
+  LEFT, BOTTOM, FRONT, RED, BOTTOM_LEFT,
+  RIGHT, BOTTOM, FRONT, RED, BOTTOM_RIGHT,
   
-  LEFT, TOP, FRONT, RED,
-  RIGHT, BOTTOM, FRONT, RED,
-  RIGHT, TOP, FRONT, RED,
+  LEFT, TOP, FRONT, RED, TOP_LEFT,
+  RIGHT, BOTTOM, FRONT, RED, BOTTOM_RIGHT,
+  RIGHT, TOP, FRONT, RED, TOP_RIGHT,
+ 
+	 LEFT, TOP, BACK, BLUE, TOP_LEFT,       // left
+  LEFT, BOTTOM, BACK, BLUE, BOTTOM_LEFT,
+  LEFT, BOTTOM, FRONT, BLUE, BOTTOM_RIGHT,
   
-  LEFT, TOP, BACK, BLUE,        // left
-  LEFT, BOTTOM, BACK, BLUE,
-  LEFT, BOTTOM, FRONT, BLUE,
+  LEFT, TOP, BACK, BLUE, TOP_LEFT,
+  LEFT, BOTTOM, FRONT, BLUE, BOTTOM_RIGHT,
+  LEFT, TOP, FRONT, BLUE, TOP_RIGHT,
   
-  LEFT, TOP, BACK, BLUE,
-  LEFT, BOTTOM, FRONT, BLUE,
-  LEFT, TOP, FRONT, BLUE,
+  RIGHT, TOP, BACK, GREEN, TOP_LEFT,     // back
+  RIGHT, BOTTOM, BACK, GREEN, BOTTOM_LEFT,
+  LEFT, BOTTOM, BACK, GREEN, BOTTOM_RIGHT,
   
-  RIGHT, TOP, BACK, GREEN,      // back
-  RIGHT, BOTTOM, BACK, GREEN,
-  LEFT, BOTTOM, BACK, GREEN,
+  RIGHT, TOP, BACK, GREEN, TOP_LEFT,
+  LEFT, BOTTOM, BACK, GREEN, BOTTOM_RIGHT,
+  LEFT, TOP, BACK, GREEN, TOP_RIGHT,
   
-  RIGHT, TOP, BACK, GREEN,
-  LEFT, BOTTOM, BACK, GREEN,
-  LEFT, TOP, BACK, GREEN,
+  RIGHT, TOP, FRONT, ORANGE, TOP_LEFT,     // right
+  RIGHT, BOTTOM, FRONT, ORANGE, BOTTOM_LEFT,
+  RIGHT, BOTTOM, BACK, ORANGE, BOTTOM_RIGHT,
+ 
+  RIGHT, TOP, FRONT, ORANGE, TOP_LEFT,
+  RIGHT, BOTTOM, BACK, ORANGE, BOTTOM_RIGHT,
+  RIGHT, TOP, BACK, ORANGE, TOP_RIGHT,
   
-  RIGHT, TOP, FRONT, ORANGE,      // right
-  RIGHT, BOTTOM, FRONT, ORANGE,
-  RIGHT, BOTTOM, BACK, ORANGE,
+  LEFT, TOP, BACK, PURPLE, TOP_LEFT,   // top
+  LEFT, TOP, FRONT, PURPLE, BOTTOM_LEFT,
+  RIGHT, TOP, FRONT, PURPLE, BOTTOM_RIGHT,
   
-  RIGHT, TOP, FRONT, ORANGE,
-  RIGHT, BOTTOM, BACK, ORANGE,
-  RIGHT, TOP, BACK, ORANGE,
+  LEFT, TOP, BACK, PURPLE, TOP_LEFT,
+  RIGHT, TOP, FRONT, PURPLE, BOTTOM_RIGHT,
+  RIGHT, TOP, BACK, PURPLE, TOP_RIGHT,
   
-  LEFT, TOP, BACK, PURPLE,    // top
-  LEFT, TOP, FRONT, PURPLE,
-  RIGHT, TOP, FRONT, PURPLE,
+  LEFT, BOTTOM, FRONT, YELLOW, TOP_LEFT,   // bottom
+  LEFT, BOTTOM, BACK, YELLOW, BOTTOM_LEFT,
+  RIGHT, BOTTOM, BACK, YELLOW, BOTTOM_RIGHT,
   
-  LEFT, TOP, BACK, PURPLE,
-  RIGHT, TOP, FRONT, PURPLE,
-  RIGHT, TOP, BACK, PURPLE,
-  
-  LEFT, BOTTOM, FRONT, YELLOW,    // bottom
-  LEFT, BOTTOM, BACK, YELLOW,
-  RIGHT, BOTTOM, BACK, YELLOW,
-  
-  LEFT, BOTTOM, FRONT, YELLOW,
-  RIGHT, BOTTOM, BACK, YELLOW,
-  RIGHT, BOTTOM, FRONT, YELLOW,
+  LEFT, BOTTOM, FRONT, YELLOW, TOP_LEFT,
+  RIGHT, BOTTOM, BACK, YELLOW, BOTTOM_RIGHT,
+  RIGHT, BOTTOM, FRONT, YELLOW, TOP_RIGHT,
 };
 
 // callback for keyboard input
@@ -118,7 +128,7 @@ int main(int argc, char * argv[]) {
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-  auto mWindow = glfwCreateWindow(200, 200, "CISC3620", nullptr, nullptr);
+  auto mWindow = glfwCreateWindow(600, 600, "CISC3620", nullptr, nullptr);
   // Check for Valid Context
   if (mWindow == nullptr) {
     fprintf(stderr, "Failed to Create OpenGL Context");
@@ -166,11 +176,15 @@ int main(int argc, char * argv[]) {
   // position
   GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
   glEnableVertexAttribArray(posAttrib);
-  glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);  // attribute location, # values, value type, normalize?, stride, offset
+  glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0);  // attribute location, # values, value type, normalize?, stride, offset
   // color
   GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
   glEnableVertexAttribArray(colAttrib);
-  glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+  glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+	// texture coords
+	GLint texAttrib = glGetAttribLocation(shaderProgram, "texCoord");
+	glEnableVertexAttribArray(texAttrib);
+	glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat)));
   
   // model matrix
   GLint modelTransform = glGetUniformLocation(shaderProgram, "model");
@@ -180,6 +194,24 @@ int main(int argc, char * argv[]) {
   glm::mat4 ortho_model = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
   GLint viewTransform = glGetUniformLocation(shaderProgram, "view");
   glUniformMatrix4fv(viewTransform, 1, GL_FALSE, glm::value_ptr(ortho_model));
+
+	// load texture
+	int w, h, comp;
+	unsigned char* image = stbi_load("/Users/Harris/Documents/Code/CISC\ 3620/CISC3620-Lab-7/Textures/bunny.jpg", &w, &h, &comp, STBI_rgb);
+	if (image == nullptr) std::cout << stbi_failure_reason() << std::endl;
+
+	// generate texture
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	// texture parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
   // Rendering Loop
   float r = 0.1f;
