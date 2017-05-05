@@ -31,10 +31,10 @@
 #define BACK -0.5f
 
 // texture coordinates
-#define TOP_LEFT 0.0f, 1.0f
+#define TOP_LEFT 0.0f, 2.0f
 #define BOTTOM_LEFT 0.0f, 0.0f
-#define TOP_RIGHT 1.0f, 1.0f
-#define BOTTOM_RIGHT 1.0f, 0.0f
+#define TOP_RIGHT 2.0f, 2.0f
+#define BOTTOM_RIGHT 2.0f, 0.0f
 
 const GLchar* vertexSource =
 "#version 150 core\n"             // glsl version
@@ -209,7 +209,7 @@ int main(int argc, char * argv[]) {
 
 	// texture parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
